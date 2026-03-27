@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { Droplets, BarChart3, Users, Hospital, AlertCircle, Menu, X, LogOut, Settings } from 'lucide-react';
-import { useSupabase } from '@/providers/supabase-provider';
-import { type Profile } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/client';
+import type { Profile } from '@/lib/supabase/types';
 import { toast } from 'sonner';
 
 const navigationItems = [
@@ -22,9 +22,9 @@ const adminItems = [
 export function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const pathname = usePathname();
   const router = useRouter();
-  const supabase = useSupabase();
 
   useEffect(() => {
     loadProfile();
@@ -32,7 +32,14 @@ export function Sidebar() {
 
   async function loadProfile() {
     try {
+      const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        router.push('/login');
+        return;
+      }
+      
       if (user) {
         const { data } = await supabase
           .from('profiles')
@@ -43,11 +50,14 @@ export function Sidebar() {
       }
     } catch (error) {
       console.error('Failed to load profile:', error);
+    } finally {
+      setIsLoading(false);
     }
   }
 
   async function handleSignOut() {
     try {
+      const supabase = createClient();
       await supabase.auth.signOut();
       toast.success('Signed out successfully');
       router.push('/login');

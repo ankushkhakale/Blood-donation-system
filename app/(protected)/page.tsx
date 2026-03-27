@@ -6,10 +6,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import StatCard from '@/components/stat-card';
 import BloodAvailabilityGrid from '@/components/blood-availability-grid';
 import EmergencyFeed from '@/components/emergency-feed';
-import { useSupabase } from '@/providers/supabase-provider';
+import { createClient } from '@/lib/supabase/client';
 
 export default function Dashboard() {
-  const supabase = useSupabase();
   const [stats, setStats] = useState({
     totalDonors: 0,
     totalHospitals: 0,
@@ -19,6 +18,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     const fetchStats = async () => {
+      const supabase = createClient();
       const [donorsRes, hospitalsRes, bloodRes, emergencyRes] = await Promise.all([
         supabase.from('donors').select('*', { count: 'exact', head: true }),
         supabase.from('hospitals').select('*', { count: 'exact', head: true }),
@@ -39,6 +39,7 @@ export default function Dashboard() {
     fetchStats();
 
     // Subscribe to changes
+    const supabase = createClient();
     const donorSub = supabase
       .channel('donors')
       .on('*', () => fetchStats())

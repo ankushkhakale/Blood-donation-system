@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { useSupabase } from '@/providers/supabase-provider'
+import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
@@ -10,7 +10,6 @@ import { Droplets, Heart, Users, Zap } from 'lucide-react'
 import { toast } from 'sonner'
 
 export default function LandingPage() {
-  const supabase = useSupabase()
   const [stats, setStats] = useState({ donors: 0, hospitals: 0, units: 0, requests: 0 })
   const [email, setEmail] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -27,6 +26,7 @@ export default function LandingPage() {
 
   async function loadStats() {
     try {
+      const supabase = createClient()
       const [donors, hospitals, stock] = await Promise.all([
         supabase.from('donors').select('id', { count: 'exact', head: true }),
         supabase.from('hospitals').select('id', { count: 'exact', head: true }),
@@ -49,6 +49,7 @@ export default function LandingPage() {
     setIsSubmitting(true)
 
     try {
+      const supabase = createClient()
       const { error } = await supabase
         .from('waitlist')
         .insert([{ email, name: email.split('@')[0] }])
@@ -98,7 +99,7 @@ export default function LandingPage() {
             <span>BloodLink</span>
           </Link>
           <div className="flex gap-4">
-            <Link href="/login">
+            <Link href="/auth/login">
               <Button variant="outline" className="border-border hover:bg-card">
                 Sign In
               </Button>
@@ -123,7 +124,7 @@ export default function LandingPage() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-            <Link href="/login">
+            <Link href="/auth/login">
               <Button size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground px-8">
                 Get Started
               </Button>
