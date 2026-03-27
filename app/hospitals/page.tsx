@@ -1,8 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Sidebar } from '@/components/sidebar';
-import { createClient } from '@supabase/supabase-js';
 import { Hospital, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,11 +8,7 @@ import HospitalPanel from '@/components/hospital-panel';
 import HospitalStockTable from '@/components/hospital-stock-table';
 import AddHospitalModal from '@/components/add-hospital-modal';
 import { toast } from 'sonner';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { useSupabase } from '@/providers/supabase-provider';
 
 interface HospitalData {
   id: string;
@@ -32,6 +26,7 @@ interface BloodStock {
 }
 
 export default function HospitalsPage() {
+  const supabase = useSupabase();
   const [hospitals, setHospitals] = useState<HospitalData[]>([]);
   const [selectedHospital, setSelectedHospital] = useState<HospitalData | null>(null);
   const [bloodStock, setBloodStock] = useState<BloodStock[]>([]);

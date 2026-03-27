@@ -1,20 +1,15 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Sidebar } from '@/components/sidebar';
-import { createClient } from '@supabase/supabase-js';
 import { BarChart3, Droplets, AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import StatCard from '@/components/stat-card';
 import BloodAvailabilityGrid from '@/components/blood-availability-grid';
 import EmergencyFeed from '@/components/emergency-feed';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { useSupabase } from '@/providers/supabase-provider';
 
 export default function Dashboard() {
+  const supabase = useSupabase();
   const [stats, setStats] = useState({
     totalDonors: 0,
     totalHospitals: 0,

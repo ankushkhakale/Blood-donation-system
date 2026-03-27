@@ -1,8 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Sidebar } from '@/components/sidebar';
-import { createClient } from '@supabase/supabase-js';
 import { Users, Search, Plus } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -10,11 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import DonorTable from '@/components/donor-table';
 import DonorForm from '@/components/donor-form';
 import { toast } from 'sonner';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { useSupabase } from '@/providers/supabase-provider';
 
 interface Donor {
   id: string;
@@ -26,6 +20,7 @@ interface Donor {
 }
 
 export default function DonorsPage() {
+  const supabase = useSupabase();
   const [donors, setDonors] = useState<Donor[]>([]);
   const [filteredDonors, setFilteredDonors] = useState<Donor[]>([]);
   const [searchTerm, setSearchTerm] = useState('');

@@ -1,19 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Sidebar } from '@/components/sidebar';
-import { createClient } from '@supabase/supabase-js';
 import { AlertCircle, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import EmergencyRequestForm from '@/components/emergency-request-form';
 import EmergencyRequestTable from '@/components/emergency-request-table';
 import { toast } from 'sonner';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { useSupabase } from '@/providers/supabase-provider';
 
 interface EmergencyRequest {
   id: string;
@@ -32,6 +26,7 @@ interface Hospital {
 }
 
 export default function EmergencyPage() {
+  const supabase = useSupabase();
   const [requests, setRequests] = useState<EmergencyRequest[]>([]);
   const [hospitals, setHospitals] = useState<Hospital[]>([]);
   const [showForm, setShowForm] = useState(false);

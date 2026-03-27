@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { Toaster } from 'sonner'
+import { Sidebar } from '@/components/sidebar'
+import { SupabaseProvider } from '@/providers/supabase-provider'
 import './globals.css'
 
 const _geist = Geist({ subsets: ["latin"] });
@@ -38,7 +40,12 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="font-sans antialiased dark bg-background text-foreground">
-        {children}
+        <SupabaseProvider>
+          <Sidebar />
+          <main className="lg:ml-64">
+            {children}
+          </main>
+        </SupabaseProvider>
         <Toaster theme="dark" position="bottom-right" />
         <Analytics />
       </body>
