@@ -1,28 +1,8 @@
 import { type NextRequest, NextResponse } from 'next/server'
 
 export function middleware(request: NextRequest) {
-  const path = request.nextUrl.pathname
-
-  // Public routes that don't require auth
-  const publicRoutes = ['/login', '/landing', '/']
-
-  // Check for auth token
-  const accessToken = request.cookies.get('sb-access-token')?.value
-
-  // If user is not authenticated
-  if (!accessToken) {
-    // If trying to access protected route, redirect to landing
-    if (!publicRoutes.includes(path) && !path.startsWith('/api')) {
-      return NextResponse.redirect(new URL('/landing', request.url))
-    }
-    return NextResponse.next()
-  }
-
-  // If user is authenticated and tries to access login, redirect to dashboard
-  if (accessToken && path === '/login') {
-    return NextResponse.redirect(new URL('/', request.url))
-  }
-
+  // Supabase auth here is client-managed; do not block routes based on missing cookies.
+  // Server-side route protection should be implemented with @supabase/ssr if needed.
   return NextResponse.next()
 }
 
