@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useSupabase } from '@/providers/supabase-provider';
+import { createClient } from '@/lib/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Droplets } from 'lucide-react';
 
@@ -16,12 +16,12 @@ interface BloodStock {
 }
 
 export default function BloodAvailabilityGrid() {
-  const supabase = useSupabase();
   const [bloodData, setBloodData] = useState<Map<string, Map<string, number>>>(new Map());
   const [hospitals, setHospitals] = useState<{ id: string; name: string }[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
+      const supabase = createClient();
       const [hospitalRes, stockRes] = await Promise.all([
         supabase.from('hospitals').select('id, name'),
         supabase.from('blood_stock').select('id, hospital_id, blood_type, quantity, hospital:hospitals(name)'),
@@ -44,6 +44,7 @@ export default function BloodAvailabilityGrid() {
     fetchData();
 
     // Subscribe to blood stock changes
+    const supabase = createClient();
     const subscription = supabase
       .channel('blood_stock_updates')
       .on('*', () => fetchData())

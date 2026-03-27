@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import DonorTable from '@/components/donor-table';
 import DonorForm from '@/components/donor-form';
 import { toast } from 'sonner';
-import { useSupabase } from '@/providers/supabase-provider';
+import { createClient } from '@/lib/supabase/client';
 
 interface Donor {
   id: string;
@@ -20,7 +20,6 @@ interface Donor {
 }
 
 export default function DonorsPage() {
-  const supabase = useSupabase();
   const [donors, setDonors] = useState<Donor[]>([]);
   const [filteredDonors, setFilteredDonors] = useState<Donor[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -32,6 +31,7 @@ export default function DonorsPage() {
 
   useEffect(() => {
     const fetchDonors = async () => {
+      const supabase = createClient();
       const { data, error } = await supabase
         .from('donors')
         .select('*')
@@ -44,6 +44,7 @@ export default function DonorsPage() {
 
     fetchDonors();
 
+    const supabase = createClient();
     const subscription = supabase
       .channel('donors_updates')
       .on('*', () => fetchDonors())

@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import EmergencyRequestForm from '@/components/emergency-request-form';
 import EmergencyRequestTable from '@/components/emergency-request-table';
 import { toast } from 'sonner';
-import { useSupabase } from '@/providers/supabase-provider';
+import { createClient } from '@/lib/supabase/client';
 
 interface EmergencyRequest {
   id: string;
@@ -26,7 +26,6 @@ interface Hospital {
 }
 
 export default function EmergencyPage() {
-  const supabase = useSupabase();
   const [requests, setRequests] = useState<EmergencyRequest[]>([]);
   const [hospitals, setHospitals] = useState<Hospital[]>([]);
   const [showForm, setShowForm] = useState(false);
@@ -38,6 +37,7 @@ export default function EmergencyPage() {
 
   useEffect(() => {
     const fetchData = async () => {
+      const supabase = createClient();
       const [requestsRes, hospitalsRes] = await Promise.all([
         supabase
           .from('emergency_requests')

@@ -39,7 +39,7 @@ export default function AuthErrorPage() {
                 </div>
                 <div className="flex gap-3">
                   <Button asChild variant="outline" className="w-full">
-                    <Link href="/login">
+                    <Link href="/auth/login">
                       Back to Login
                     </Link>
                   </Button>

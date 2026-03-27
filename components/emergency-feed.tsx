@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
-import { useSupabase } from '@/providers/supabase-provider';
+import { createClient } from '@/lib/supabase/client';
 
 interface EmergencyRequest {
   id: string;
@@ -21,10 +21,10 @@ interface EmergencyRequest {
 export default function EmergencyFeed() {
   const [requests, setRequests] = useState<EmergencyRequest[]>([]);
   const [loading, setLoading] = useState(false);
-  const supabase = useSupabase();
 
   useEffect(() => {
     const fetchRequests = async () => {
+      const supabase = createClient();
       const { data, error } = await supabase
         .from('emergency_requests')
         .select('id, hospital_id, blood_type, units_required, urgency, status, created_at, hospital:hospitals(name)')
@@ -39,6 +39,7 @@ export default function EmergencyFeed() {
     fetchRequests();
 
     // Subscribe to changes
+    const supabase = createClient();
     const subscription = supabase
       .channel('emergency_updates')
       .on('*', () => fetchRequests())
@@ -51,6 +52,7 @@ export default function EmergencyFeed() {
 
   const markFulfilled = async (id: string) => {
     setLoading(true);
+    const supabase = createClient();
     const { error } = await supabase
       .from('emergency_requests')
       .update({ status: 'fulfilled' })

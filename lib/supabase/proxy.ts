@@ -33,13 +33,20 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (
-    request.nextUrl.pathname.startsWith('/protected') &&
-    !user
-  ) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/auth/login'
-    return NextResponse.redirect(url)
+  // Redirect unauthenticated requests to login
+  // Note: Route groups (parentheses) don't appear in the pathname
+  if (!user) {
+    const publicPaths = ['/auth', '/landing', '/']
+    const isPublicPath = publicPaths.some(path => 
+      request.nextUrl.pathname === path || 
+      request.nextUrl.pathname.startsWith(path + '/')
+    )
+    
+    if (!isPublicPath) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/auth/login'
+      return NextResponse.redirect(url)
+    }
   }
 
   return supabaseResponse

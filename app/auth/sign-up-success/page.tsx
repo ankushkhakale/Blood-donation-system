@@ -35,7 +35,7 @@ export default function SignUpSuccessPage() {
                   <p>After verifying your email, you&apos;ll be able to sign in to your account.</p>
                 </div>
                 <Button asChild className="w-full">
-                  <Link href="/login">
+                  <Link href="/auth/login">
                     Go to Login
                   </Link>
                 </Button>

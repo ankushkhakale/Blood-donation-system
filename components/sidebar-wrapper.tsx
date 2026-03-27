@@ -3,7 +3,7 @@
 import { usePathname } from 'next/navigation'
 import { Sidebar } from '@/components/sidebar'
 
-const PUBLIC_ROUTES = ['/login', '/landing']
+const PUBLIC_ROUTES = ['/auth/login', '/auth/sign-up', '/landing']
 
 export function SidebarWrapper() {
   const pathname = usePathname()

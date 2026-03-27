@@ -8,7 +8,7 @@ import HospitalPanel from '@/components/hospital-panel';
 import HospitalStockTable from '@/components/hospital-stock-table';
 import AddHospitalModal from '@/components/add-hospital-modal';
 import { toast } from 'sonner';
-import { useSupabase } from '@/providers/supabase-provider';
+import { createClient } from '@/lib/supabase/client';
 
 interface HospitalData {
   id: string;
@@ -26,7 +26,6 @@ interface BloodStock {
 }
 
 export default function HospitalsPage() {
-  const supabase = useSupabase();
   const [hospitals, setHospitals] = useState<HospitalData[]>([]);
   const [selectedHospital, setSelectedHospital] = useState<HospitalData | null>(null);
   const [bloodStock, setBloodStock] = useState<BloodStock[]>([]);
@@ -35,6 +34,7 @@ export default function HospitalsPage() {
 
   useEffect(() => {
     const fetchHospitals = async () => {
+      const supabase = createClient();
       const { data, error } = await supabase
         .from('hospitals')
         .select('*')

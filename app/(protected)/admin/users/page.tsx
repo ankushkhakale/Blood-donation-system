@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useSupabase } from '@/providers/supabase-provider'
+import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
@@ -9,10 +9,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { toast } from 'sonner'
-import { type Profile } from '@/lib/supabase'
+import { type Profile } from '@/lib/supabase/types'
 
 export default function AdminUsersPage() {
-  const supabase = useSupabase()
   const [users, setUsers] = useState<Profile[]>([])
   const [hospitals, setHospitals] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -34,6 +33,7 @@ export default function AdminUsersPage() {
 
   async function loadUsers() {
     try {
+      const supabase = createClient()
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -50,6 +50,7 @@ export default function AdminUsersPage() {
 
   async function loadHospitals() {
     try {
+      const supabase = createClient()
       const { data, error } = await supabase
         .from('hospitals')
         .select('id, name')
@@ -67,6 +68,7 @@ export default function AdminUsersPage() {
     setIsSubmitting(true)
 
     try {
+      const supabase = createClient()
       // Create auth user
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
