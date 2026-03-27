@@ -1,35 +1,113 @@
-# Blood-donation-system
+# 🩸 Blood Donation Management System
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [v0](https://v0.app).
+A modern web app to connect donors, hospitals, and administrators with real-time blood availability, emergency requests, and role-based workflows. Built with the Next.js App Router, Supabase for auth/data, and a component-rich UI powered by Tailwind CSS and Radix.
 
-## Built with v0
+## ✨ Features
 
-This repository is linked to a [v0](https://v0.app) project. You can continue developing by visiting the link below -- start new chats to make changes, and v0 will push commits directly to this repo. Every merge to `main` will automatically deploy.
+- Donor onboarding, waitlist, and profile management
+- Hospital dashboard for stock, requests, and user administration
+- Emergency feed for urgent blood requests and status tracking
+- Blood availability grid and analytics-style stat cards
+- Role-based access (super admin, hospital admin, donor)
+- Responsive, dark-mode friendly UI with reusable components
 
-[Continue working on v0 →](https://v0.app/chat/projects/prj_4xsW3Jiw5CNiyOH41ak733cp3m12)
+## 🧰 Tech Stack
 
-## Getting Started
+- **Framework:** Next.js 16 (App Router) + React 19
+- **Auth & Database:** Supabase
+- **Styling:** Tailwind CSS 4, shadcn/ui primitives (Radix UI)
+- **Charts & UI:** Recharts, Lucide icons, Sonner toasts
+- **Forms & Validation:** React Hook Form, Zod
 
-First, run the development server:
+## 📂 Project Structure
+
+```
+Blood-donation-system/
+├── app/                 # App Router routes (landing, login, donors, hospitals, emergency, admin)
+├── components/          # Feature and UI components (tables, forms, charts, sidebar, etc.)
+├── hooks/               # Reusable React hooks (toast, mobile)
+├── lib/                 # Supabase types, auth helpers, utilities
+├── providers/           # Supabase provider
+├── scripts/             # SQL to init/auth/seed Supabase
+├── styles/              # Global styles
+├── public/              # Static assets
+├── middleware.ts        # App-wide middleware
+└── package.json
+```
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js **≥ 18.17** (Next.js 16 requirement)
+- pnpm (recommended) or npm/yarn
+- Supabase project (for auth + database)
+
+### Setup
+
+1) **Clone & install dependencies**
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
+```
+
+2) **Configure environment variables** (`.env.local`)
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+# Optional (if you run server-side admin tasks)
+SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role
+```
+
+3) **Bootstrap the database** (Supabase SQL editor)
+
+- Run `scripts/auth-schema.sql` to set up auth-related tables/policies if needed.
+- Run `scripts/init-database.sql` for core tables (profiles, hospitals, inventory, requests, etc.).
+- (Optional) Run `scripts/seed-demo-user.sql` to create a demo admin/user.
+
+4) **Run the dev server**
+
+```bash
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Visit http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Available scripts
 
-## Learn More
+- `pnpm dev` — start Next.js in development
+- `pnpm build` — production build
+- `pnpm start` — run the built app
+- `pnpm lint` — lint the codebase
 
-To learn more, take a look at the following resources:
+## 🧪 Testing & Quality
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-- [v0 Documentation](https://v0.app/docs) - learn about v0 and how to use it.
+No automated tests are defined yet. Lint with `pnpm lint` before commits; consider adding Vitest/Playwright for unit/E2E coverage.
 
-<a href="https://v0.app/chat/api/kiro/clone/ankushkhakale/Blood-donation-system" alt="Open in Kiro"><img src="https://pdgvvgmkdvyeydso.public.blob.vercel-storage.com/open%20in%20kiro.svg?sanitize=true" /></a>
+## 🔒 Environment & Auth Notes
+
+- Supabase is required; missing env vars will throw at startup (see `providers/supabase-provider.tsx`).
+- Roles supported: `super_admin`, `hospital_admin`, `donor` (see `lib/auth.ts`). Ensure your RLS policies align with these roles.
+
+## 🗺️ Roadmap ideas
+
+- Location-based donor matching and proximity alerts
+- Real-time stock updates and push notifications
+- Offline/mobile-first donor check-in
+- Audit logs and granular admin roles
+
+## 🤝 Contributing
+
+1. Fork the repo
+2. Create a feature branch (`git checkout -b feature/my-change`)
+3. Commit with context (`git commit -m "feat: add hospital filters"`)
+4. Open a Pull Request
+
+## 📜 License
+
+No license specified yet. Add one if you plan to distribute or deploy publicly.
+
+## 👤 Author
+
+[Ankush Khakale](https://github.com/ankushkhakale)
