@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { Toaster } from 'sonner'
-import { Sidebar } from '@/components/sidebar'
+import { SidebarWrapper } from '@/components/sidebar-wrapper'
 import { SupabaseProvider } from '@/providers/supabase-provider'
 import './globals.css'
 
@@ -41,10 +41,12 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className="font-sans antialiased dark bg-background text-foreground">
         <SupabaseProvider>
-          <Sidebar />
-          <main className="lg:ml-64">
-            {children}
-          </main>
+          <div className="flex min-h-screen">
+            <SidebarWrapper />
+            <main className="flex-1">
+              {children}
+            </main>
+          </div>
         </SupabaseProvider>
         <Toaster theme="dark" position="bottom-right" />
         <Analytics />

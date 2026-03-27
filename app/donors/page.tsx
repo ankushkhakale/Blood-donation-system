@@ -103,10 +103,8 @@ export default function DonorsPage() {
   };
 
   return (
-    <div className="flex">
-      <Sidebar />
-      <main className="flex-1 p-8 lg:ml-0">
-        <div className="max-w-7xl mx-auto">
+    <main className="p-8">
+      <div className="max-w-7xl mx-auto">
           <div className="mb-8">
             <h1 className="text-4xl font-bold flex items-center gap-3 text-foreground">
               <Users className="text-accent" size={36} />
@@ -171,8 +169,7 @@ export default function DonorsPage() {
               isLoading={loading}
             />
           )}
-        </div>
-      </main>
-    </div>
+      </div>
+    </main>
   );
 }
