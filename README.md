@@ -1,113 +1,85 @@
-# 🩸 Blood Donation Management System
+# 🩸 Blood Donation System
 
-A modern web app to connect donors, hospitals, and administrators with real-time blood availability, emergency requests, and role-based workflows. Built with the Next.js App Router, Supabase for auth/data, and a component-rich UI powered by Tailwind CSS and Radix.
+A modern, aesthetic, and fully functional Blood Donation Management System built with **Flask** and **SQLite**. This platform connects blood donors, recipients, and hospitals in a seamless ecosystem with automated inventory management and request fulfillment.
 
-## ✨ Features
+---
 
-- Donor onboarding, waitlist, and profile management
-- Hospital dashboard for stock, requests, and user administration
-- Emergency feed for urgent blood requests and status tracking
-- Blood availability grid and analytics-style stat cards
-- Role-based access (super admin, hospital admin, donor)
-- Responsive, dark-mode friendly UI with reusable components
+## 🌟 Key Features
 
-## 🧰 Tech Stack
+### 💉 For Blood Donors
+- **Personal Dashboard**: Track your donation history and impact.
+- **Availability Toggle**: Let hospitals and recipients know when you're ready to help.
+- **Easy Scheduling**: Book donation visits at your preferred local hospitals.
 
-- **Framework:** Next.js 16 (App Router) + React 19
-- **Auth & Database:** Supabase
-- **Styling:** Tailwind CSS 4, shadcn/ui primitives (Radix UI)
-- **Charts & UI:** Recharts, Lucide icons, Sonner toasts
-- **Forms & Validation:** React Hook Form, Zod
+### 🏥 For Hospitals
+- **Inventory Management**: Real-time tracking of blood stock across all blood types.
+- **Request Handling**: Review and fulfill blood requests from recipients.
+- **Donor Logging**: Record physical donor visits to automatically update inventory levels.
 
-## 📂 Project Structure
+### 🏨 For Recipients
+- **Urgent Requests**: Post blood requests with urgency levels (Normal, Urgent, Critical).
+- **Donor Search**: Find available donors in your city with specific blood types.
+- **Request Tracking**: Monitor the status of your requests as they get fulfilled by hospitals.
 
-```
-Blood-donation-system/
-├── app/                 # App Router routes (landing, login, donors, hospitals, emergency, admin)
-├── components/          # Feature and UI components (tables, forms, charts, sidebar, etc.)
-├── hooks/               # Reusable React hooks (toast, mobile)
-├── lib/                 # Supabase types, auth helpers, utilities
-├── providers/           # Supabase provider
-├── scripts/             # SQL to init/auth/seed Supabase
-├── styles/              # Global styles
-├── public/              # Static assets
-├── middleware.ts        # App-wide middleware
-└── package.json
-```
+---
 
-## 🚀 Getting Started
+## 🛠️ Tech Stack
 
-### Prerequisites
+- **Backend**: Python / Flask
+- **Database**: SQLite (with advanced SQL Triggers for automation)
+- **Frontend**: HTML5, CSS3 (Custom Dark Theme), Vanilla JavaScript
+- **Auth**: Flask-Login
 
-- Node.js **≥ 18.17** (Next.js 16 requirement)
-- pnpm (recommended) or npm/yarn
-- Supabase project (for auth + database)
+---
 
-### Setup
+## 🚀 Quick Setup
 
-1) **Clone & install dependencies**
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/ankushkhakale/Blood-donation-system.git
+   cd Blood-donation-system
+   ```
 
-```bash
-pnpm install
-```
+2. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-2) **Configure environment variables** (`.env.local`)
+3. **Initialize the database & Seed demo data**:
+   ```bash
+   python seed.py
+   ```
 
-```bash
-NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
-# Optional (if you run server-side admin tasks)
-SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role
-```
+4. **Run the application**:
+   ```bash
+   python app.py
+   ```
+   The app will be available at `http://127.0.0.1:5000`.
 
-3) **Bootstrap the database** (Supabase SQL editor)
+---
 
-- Run `scripts/auth-schema.sql` to set up auth-related tables/policies if needed.
-- Run `scripts/init-database.sql` for core tables (profiles, hospitals, inventory, requests, etc.).
-- (Optional) Run `scripts/seed-demo-user.sql` to create a demo admin/user.
+## 🧪 Demo Credentials
 
-4) **Run the dev server**
+You can use the following accounts to test the system:
 
-```bash
-pnpm dev
-```
+| Role | Email | Password |
+| :--- | :--- | :--- |
+| **Donor** | `donor@test.com` | `123456` |
+| **Hospital** | `hospital@test.com` | `123456` |
+| **Recipient** | `recipient@test.com` | `123456` |
 
-Visit http://localhost:3000
+---
 
-### Available scripts
+## 📦 Project Structure
 
-- `pnpm dev` — start Next.js in development
-- `pnpm build` — production build
-- `pnpm start` — run the built app
-- `pnpm lint` — lint the codebase
+- `app.py`: Main application routes and logic.
+- `database.py`: Database initialization and schema definitions.
+- `models.py`: Helper functions for database operations.
+- `seed.py`: Script to populate the database with initial demo data.
+- `static/`: CSS styling and client-side scripts.
+- `templates/`: Jinja2 templates for the multi-role dashboard system.
 
-## 🧪 Testing & Quality
+---
 
-No automated tests are defined yet. Lint with `pnpm lint` before commits; consider adding Vitest/Playwright for unit/E2E coverage.
-
-## 🔒 Environment & Auth Notes
-
-- Supabase is required; missing env vars will throw at startup (see `providers/supabase-provider.tsx`).
-- Roles supported: `super_admin`, `hospital_admin`, `donor` (see `lib/auth.ts`). Ensure your RLS policies align with these roles.
-
-## 🗺️ Roadmap ideas
-
-- Location-based donor matching and proximity alerts
-- Real-time stock updates and push notifications
-- Offline/mobile-first donor check-in
-- Audit logs and granular admin roles
-
-## 🤝 Contributing
-
-1. Fork the repo
-2. Create a feature branch (`git checkout -b feature/my-change`)
-3. Commit with context (`git commit -m "feat: add hospital filters"`)
-4. Open a Pull Request
-
-## 📜 License
-
-No license specified yet. Add one if you plan to distribute or deploy publicly.
-
-## 👤 Author
-
-[Ankush Khakale](https://github.com/ankushkhakale)
+## 🛡️ License
+Distributed under the MIT License.
