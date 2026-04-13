@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+{% block title %}Donor Dashboard — BloodLink{% endblock %}
+
+{% block side_content %}
+<div class="sidebar-profile">
+    <div class="avatar avatar-donor">
+        {{ current_user.name[:1] }}
+    </div>
+    <div>
+        <div class="profile-name">{{ current_user.name }}</div>
+        <div class="profile-role badge-donor">Blood Donor</div>
+    </div>
+</div>
+
+<div class="profile-meta">
+    <div class="meta-item">
+        <span class="meta-icon">🩸</span>
+        <span>Blood Type: <strong>{{ current_user.blood_type }}</strong></span>
+    </div>
+    <div class="meta-item">
+        <span class="meta-icon">📍</span>
+        <span>{{ current_user.location or 'Not provided' }}</span>
+    </div>
+</div>
+
+<div class="availability-toggle">
+    <span class="toggle-label">Ready to Donate?</span>
+    <label class="toggle-switch">
+        <input type="checkbox" id="availabilityCheck" {% if current_user.is_available %}checked{% endif %}>
+        <span class="toggle-slider"></span>
+    </label>
+</div>
+<div class="availability-status">
+    <span class="status-dot {% if current_user.is_available %}dot-green{% else %}dot-red{% endif %}"></span>
+    <span id="availabilityText">{% if current_user.is_available %}Available to help{% else %}Currently
+        unavailable{% endif %}</span>
+</div>
+
+<div class="sidebar-stats">
+    <div class="sidebar-stat">
+        <div class="ss-num">{{ stats.total_donations }}</div>
+        <div class="ss-label">Donations</div>
+    </div>
+    <div class="sidebar-stat">
+        <div class="ss-num">{{ stats.scheduled }}</div>
+        <div class="ss-label">Scheduled</div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="dash-main">
+    <div class="dash-header">
+        <h1>Welcome, {{ current_user.name.split(' ')[0] }}!</h1>
+        <p class="dash-subtitle">Your generosity saves lives. Track your impact here.</p>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+        <div class="stat-card stat-red">
+            <div class="stat-num">{{ stats.total_donations }}</div>
+            <div class="stat-label">Total Donations</div>
+        </div>
+        <div class="stat-card stat-pink">
+            <div class="stat-num">{{ stats.units_donated }}</div>
+            <div class="stat-label">Units (ml) Contributed</div>
+        </div>
+        <div class="stat-card stat-orange">
+            <div class="stat-num">{{ stats.scheduled }}</div>
+            <div class="stat-label">Upcoming Visits</div>
+        </div>
+        <div class="stat-card stat-blue">
+            <div class="stat-num">3</div>
+            <div class="stat-label">Lives Impacted</div>
+        </div>
+    </div>
+
+    <div class="dash-grid-2">
+        <!-- Schedule Donation -->
+        <div class="dash-card">
+            <div class="card-header">
+                <h2>📅 Schedule a Donation</h2>
+            </div>
+            <form action="{{ url_for('schedule_donation') }}" method="POST" class="dash-form">
+                <div class="form-group">
+                    <label>Select Hospital</label>
+                    <select name="hospital_id" class="form-select" required>
+                        <option value="">Choose a hospital...</option>
+                        {% for h in hospitals %}
+                        <option value="{{ h.id }}">{{ h.hospital_name }} ({{ h.city }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label>Units of Blood</label>
+                        <input type="number" name="units" min="1" max="2" value="1" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select name="status" class="form-select">
+                            <option value="scheduled">Schedule for later</option>
+                            <option value="completed">I donated just now</option>
+                        </select>
+                    </div>
+                </div>
+                <p style="font-size: 0.8rem; color: var(--text-dim); margin-top: -5px;">* Standard donation is 1 unit (approx 450ml).</p>
+                <button type="submit" class="btn btn-primary btn-full">Submit Donation Entry</button>
+            </form>
+        </div>
+
+        <!-- Update Profile -->
+        <div class="dash-card">
+            <div class="card-header">
+                <h2>⚙️ Profile Settings</h2>
+            </div>
+            <form action="{{ url_for('update_donor_profile') }}" method="POST" class="dash-form">
+                <div class="form-group">
+                    <label>Your Name</label>
+                    <input type="text" name="name" value="{{ current_user.name }}" class="form-input">
+                </div>
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label>Blood Type</label>
+                        <select name="blood_type" class="form-select">
+                            {% for bt in ['A+','A-','B+','B-','AB+','AB-','O+','O-'] %}
+                            <option value="{{ bt }}" {% if current_user.blood_type == bt %}selected{% endif %}>{{ bt }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Phone</label>
+                        <input type="tel" name="phone" value="{{ current_user.phone }}" class="form-input">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>City / Location</label>
+                    <input type="text" name="location" value="{{ current_user.location }}" class="form-input">
+                </div>
+                <button type="submit" class="btn btn-outline-sm" style="width: 100%;">Update Information</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Active Blood Requests -->
+    <div class="dash-card">
+        <div class="card-header">
+            <h2>📢 Urgent Blood Requests</h2>
+            <span class="badge-count">{{ pending_requests|length }}</span>
+        </div>
+        {% if pending_requests %}
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Recipient</th>
+                        <th>Type</th>
+                        <th>Urgency</th>
+                        <th>Location</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in pending_requests[:5] %}
+                    <tr>
+                        <td>{{ r.recipient_name }}</td>
+                        <td><span class="blood-badge-sm">{{ r.blood_type }}</span></td>
+                        <td><span class="urgency-badge urgency-{{ r.urgency }}">{{ r.urgency|capitalize }}</span></td>
+                        <td>{{ r.location or 'Anywhere' }}</td>
+                        <td><a href="tel:{{ r.phone }}" class="btn-mini btn-green">Help Now</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <p>No urgent requests at the moment. You're doing great!</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- My Donation History -->
+    <div class="dash-card">
+        <div class="card-header">
+            <h2>📜 My Donation History</h2>
+        </div>
+        {% if donations %}
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Hospital</th>
+                        <th>Units</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for d in donations %}
+                    <tr>
+                        <td>{{ d.donated_at[:10] }}</td>
+                        <td>{{ d.hospital_name }}</td>
+                        <td>{{ d.units }}</td>
+                        <td><span class="status-badge status-{{ d.status }}">{{ d.status|capitalize }}</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <p>Your donation history will appear here. Start by scheduling your first visit!</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.getElementById('availabilityCheck').addEventListener('change', function (e) {
+        const isAvailable = e.target.checked;
+        fetch('/donor/toggle-availability', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ available: isAvailable })
+        })
+            .then(res => res.json())
+            .then(data => {
+                const textEl = document.getElementById('availabilityText');
+                const dotEl = document.querySelector('.status-dot');
+                textEl.textContent = isAvailable ? 'Available to help' : 'Currently unavailable';
+                dotEl.className = 'status-dot ' + (isAvailable ? 'dot-green' : 'dot-red');
+            });
+    });
+</script>
+{% endblock %}
