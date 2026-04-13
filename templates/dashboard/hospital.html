@@ -1,0 +1,245 @@
+{% extends "base.html" %}
+{% block title %}Hospital Dashboard — BloodLink{% endblock %}
+
+{% block side_content %}
+<div class="sidebar-profile">
+    <div class="avatar avatar-hospital">
+        H
+    </div>
+    <div>
+        <div class="profile-name">{{ hospital.hospital_name }}</div>
+        <div class="profile-role badge-hospital">Medical Center</div>
+    </div>
+</div>
+
+<div class="profile-meta">
+    <div class="meta-item">
+        <span class="meta-icon">📧</span>
+        <span>{{ current_user.email }}</span>
+    </div>
+    <div class="meta-item">
+        <span class="meta-icon">📍</span>
+        <span>{{ hospital.city }}</span>
+    </div>
+</div>
+
+<div class="inventory-sidebar">
+    <div class="inv-title">Blood Stock Quick View</div>
+    {% for inv in inventory %}
+    <div class="inv-row">
+        <div class="inv-type">{{ inv.blood_type }}</div>
+        <div class="inv-bar-wrap">
+            <div class="inv-bar" style="width: {{ [inv.units_available * 5, 100]|min }}%"></div>
+        </div>
+        <div class="inv-count">{{ inv.units_available }}</div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="dash-main">
+    <div class="dash-header">
+        <h1>Hospital Management Console</h1>
+        <p class="dash-subtitle">Real-time inventory and blood request management.</p>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+        <div class="stat-card stat-red">
+            <div class="stat-num">{{ stats.total_inventory }}</div>
+            <div class="stat-label">Total Units in Stock</div>
+        </div>
+        <div class="stat-card stat-orange">
+            <div class="stat-num">{{ stats.pending_requests }}</div>
+            <div class="stat-label">Pending Requests</div>
+        </div>
+        <div class="stat-card stat-pink">
+            <div class="stat-num">{{ stats.critical_requests }}</div>
+            <div class="stat-label">Critical Alerts</div>
+        </div>
+        <div class="stat-card stat-green">
+            <div class="stat-num">{{ stats.total_donations }}</div>
+            <div class="stat-label">Donations Received</div>
+        </div>
+    </div>
+
+    <div class="dash-grid-2">
+        <!-- Add Inventory -->
+        <div class="dash-card">
+            <div class="card-header">
+                <h2>➕ Update Inventory</h2>
+            </div>
+            <form action="{{ url_for('add_inventory') }}" method="POST" class="dash-form">
+                <div class="form-group">
+                    <label>Blood Type</label>
+                    <select name="blood_type" class="form-select" required>
+                        {% for bt in ['A+','A-','B+','B-','AB+','AB-','O+','O-'] %}
+                        <option value="{{ bt }}">{{ bt }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Units to Add</label>
+                    <input type="number" name="units" min="1" max="100" value="1" class="form-input" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">Add to Inventory</button>
+            </form>
+        </div>
+
+        <!-- Record Donation from Donor -->
+        <div class="dash-card">
+            <div class="card-header">
+                <h2>💉 Record Donor Visit</h2>
+            </div>
+            <form action="{{ url_for('hospital_record_donation') }}" method="POST" class="dash-form">
+                <div class="form-group">
+                    <label>Select Donor</label>
+                    <select name="donor_id" class="form-select" required>
+                        <option value="">Choose a donor...</option>
+                        {% for d in all_donors %}
+                        <option value="{{ d.id }}">{{ d.name }} — {{ d.blood_type }} ({{ d.location or 'N/A' }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Blood Type Collected</label>
+                    <select name="blood_type" class="form-select" required>
+                        {% for bt in ['A+','A-','B+','B-','AB+','AB-','O+','O-'] %}
+                        <option value="{{ bt }}">{{ bt }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Units Collected</label>
+                    <input type="number" name="units" min="1" max="3" value="1" class="form-input">
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">Record Donation</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Blood Inventory Table -->
+    <div class="dash-card">
+        <div class="card-header">
+            <h2>🩸 Full Inventory</h2>
+        </div>
+        <div class="inventory-grid">
+            {% for inv in inventory %}
+            <div
+                class="inv-card {% if inv.units_available == 0 %}inv-empty{% elif inv.units_available < 5 %}inv-low{% else %}inv-ok{% endif %}">
+                <div class="inv-card-type">{{ inv.blood_type }}</div>
+                <div class="inv-card-units">{{ inv.units_available }}</div>
+                <div class="inv-card-label">units</div>
+                {% if inv.units_available == 0 %}
+                <div class="inv-card-status">⚠️ Empty</div>
+                {% elif inv.units_available < 5 %} <div class="inv-card-status">🔴 Low
+            </div>
+            {% else %}
+            <div class="inv-card-status">✅ OK</div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Blood Requests -->
+<div class="dash-card">
+    <div class="card-header">
+        <h2>📋 Blood Requests</h2><span class="badge-count">{{ requests|length }}</span>
+    </div>
+    {% if requests %}
+    <div class="table-wrapper">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Recipient</th>
+                    <th>Blood Type</th>
+                    <th>Units</th>
+                    <th>Urgency</th>
+                    <th>Notes</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in requests %}
+                <tr>
+                    <td>
+                        <div>{{ r.recipient_name }}</div>
+                        <small>{{ r.recipient_phone or '' }}</small>
+                    </td>
+                    <td><span class="blood-badge">{{ r.blood_type }}</span></td>
+                    <td>{{ r.units }}</td>
+                    <td><span class="urgency-badge urgency-{{ r.urgency }}">{{ r.urgency|capitalize }}</span></td>
+                    <td>{{ r.notes or '—' }}</td>
+                    <td><span class="status-badge status-{{ r.status }}">{{ r.status|capitalize }}</span></td>
+                    <td>{{ r.created_at[:10] }}</td>
+                    <td>
+                        {% if r.status == 'pending' %}
+                        <form action="{{ url_for('update_request') }}" method="POST" style="display:inline">
+                            <input type="hidden" name="request_id" value="{{ r.id }}">
+                            <input type="hidden" name="status" value="fulfilled">
+                            <button type="submit" class="btn-mini btn-green">✓ Fulfill</button>
+                        </form>
+                        <form action="{{ url_for('update_request') }}" method="POST" style="display:inline">
+                            <input type="hidden" name="request_id" value="{{ r.id }}">
+                            <input type="hidden" name="status" value="rejected">
+                            <button type="submit" class="btn-mini btn-red">✗ Reject</button>
+                        </form>
+                        {% else %}
+                        <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <p>No blood requests yet. 🎉</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Recent Donations Received -->
+<div class="dash-card">
+    <div class="card-header">
+        <h2>📊 Recent Donations Received</h2>
+    </div>
+    {% if donations %}
+    <div class="table-wrapper">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Donor</th>
+                    <th>Blood Type</th>
+                    <th>Units</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for d in donations[:10] %}
+                <tr>
+                    <td>{{ d.donor_name }}</td>
+                    <td><span class="blood-badge">{{ d.blood_type }}</span></td>
+                    <td>{{ d.units }}</td>
+                    <td><span class="status-badge status-{{ d.status }}">{{ d.status|capitalize }}</span></td>
+                    <td>{{ d.donated_at[:10] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <p>No donations recorded yet.</p>
+    </div>
+    {% endif %}
+</div>
+</div>
+{% endblock %}

@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+{% block title %}Recipient Dashboard — BloodLink{% endblock %}
+
+{% block side_content %}
+<div class="sidebar-profile">
+    <div class="avatar avatar-recipient">
+        {{ current_user.name[:1] }}
+    </div>
+    <div>
+        <div class="profile-name">{{ current_user.name }}</div>
+        <div class="profile-role badge-recipient">Recipient</div>
+    </div>
+</div>
+
+<div class="profile-meta">
+    <div class="meta-item">
+        <span class="meta-icon">📧</span>
+        <span>{{ current_user.email }}</span>
+    </div>
+    <div class="meta-item">
+        <span class="meta-icon">📞</span>
+        <span>{{ current_user.phone or 'Not provided' }}</span>
+    </div>
+    <div class="meta-item">
+        <span class="meta-icon">📍</span>
+        <span>{{ current_user.location or 'Not provided' }}</span>
+    </div>
+</div>
+
+<div class="sidebar-stats">
+    <div class="sidebar-stat">
+        <div class="ss-num">{{ stats.total_requests }}</div>
+        <div class="ss-label">Requests</div>
+    </div>
+    <div class="sidebar-stat">
+        <div class="ss-num" style="color: var(--green)">{{ stats.fulfilled }}</div>
+        <div class="ss-label">Fulfilled</div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="dash-main">
+    <div class="dash-header">
+        <h1>Recipient Dashboard</h1>
+        <p class="dash-subtitle">Manage your blood requests and find donors near you.</p>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+        <div class="stat-card stat-blue">
+            <div class="stat-num">{{ stats.total_requests }}</div>
+            <div class="stat-label">Total Requests</div>
+        </div>
+        <div class="stat-card stat-orange">
+            <div class="stat-num">{{ stats.pending }}</div>
+            <div class="stat-label">Pending Approval</div>
+        </div>
+        <div class="stat-card stat-green">
+            <div class="stat-num">{{ stats.fulfilled }}</div>
+            <div class="stat-label">Requests Fulfilled</div>
+        </div>
+        <div class="stat-card stat-red">
+            <div class="stat-num">{{ stats.rejected }}</div>
+            <div class="stat-label">Cancelled/Rejected</div>
+        </div>
+    </div>
+
+    <div class="dash-grid-2">
+        <!-- Request Blood Form -->
+        <div class="dash-card">
+            <div class="card-header">
+                <h2>➕ New Blood Request</h2>
+            </div>
+            <form action="{{ url_for('request_blood') }}" method="POST" class="dash-form">
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label>Blood Type Required</label>
+                        <select name="blood_type" class="form-select" required>
+                            <option value="">Select...</option>
+                            {% for bt in ['A+','A-','B+','B-','AB+','AB-','O+','O-'] %}
+                            <option value="{{ bt }}">{{ bt }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Units Needed</label>
+                        <input type="number" name="units" min="1" max="10" value="1" class="form-input">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Urgency Level</label>
+                    <div style="display: flex; gap: 10px; margin-top: 5px;">
+                        <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                            <input type="radio" name="urgency" value="normal" checked> Normal
+                        </label>
+                        <label
+                            style="display: flex; align-items: center; gap: 5px; cursor: pointer; color: var(--orange);">
+                            <input type="radio" name="urgency" value="urgent"> Urgent
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; color: var(--red);">
+                            <input type="radio" name="urgency" value="critical"> Critical
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Preferred Hospital (Optional)</label>
+                    <select name="hospital_id" class="form-select">
+                        <option value="">Any available hospital</option>
+                        {% for h in hospitals %}
+                        <option value="{{ h.id }}">{{ h.hospital_name }} ({{ h.city }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Reason / Notes</label>
+                    <textarea name="notes" placeholder="E.g. Required for surgery at..." class="form-textarea"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">Post Blood Request</button>
+            </form>
+        </div>
+
+        <!-- Search Donors -->
+        <div class="dash-card">
+            <div class="card-header">
+                <h2>🔍 Search Available Donors</h2>
+            </div>
+            <div style="padding: 20px 24px 10px;">
+                <form action="{{ url_for('recipient_dashboard') }}" method="GET"
+                    style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <select name="blood_type" class="form-select" style="flex: 1;">
+                        <option value="">All Types</option>
+                        {% for bt in ['A+','A-','B+','B-','AB+','AB-','O+','O-'] %}
+                        <option value="{{ bt }}" {% if blood_type_filter==bt %}selected{% endif %}>{{ bt }}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="text" name="location" placeholder="City..." class="form-input" style="flex: 1;"
+                        value="{{ location_filter }}">
+                    <button type="submit" class="btn btn-primary-sm">Search</button>
+                </form>
+            </div>
+
+            <div class="donor-list">
+                {% if available_donors %}
+                {% for donor in available_donors %}
+                <div class="donor-card">
+                    <div class="donor-avatar">{{ donor.blood_type }}</div>
+                    <div class="donor-info">
+                        <div class="donor-name">{{ donor.name }}</div>
+                        <div class="donor-meta">
+                            <span>📍 {{ donor.location or 'N/A' }}</span>
+                            <span>📞 {{ donor.phone or 'N/A' }}</span>
+                        </div>
+                    </div>
+                    <a href="tel:{{ donor.phone }}" class="btn-mini btn-green">Call</a>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div class="empty-state">
+                    <p>No compatible donors found.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- My Blood Requests Table -->
+    <div class="dash-card">
+        <div class="card-header">
+            <h2>📋 My Request History</h2>
+        </div>
+        {% if my_requests %}
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Blood Type</th>
+                        <th>Units</th>
+                        <th>Urgency</th>
+                        <th>Hospital</th>
+                        <th>Status</th>
+                        <th>Submitted</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in my_requests %}
+                    <tr>
+                        <td><span class="blood-badge">{{ r.blood_type }}</span></td>
+                        <td>{{ r.units }}</td>
+                        <td><span class="urgency-badge urgency-{{ r.urgency }}">{{ r.urgency|capitalize }}</span></td>
+                        <td>{{ r.hospital_name or 'Pending...' }}</td>
+                        <td><span class="status-badge status-{{ r.status }}">{{ r.status|capitalize }}</span></td>
+                        <td>{{ r.created_at[:10] }}</td>
+                        <td>
+                            {% if r.status == 'pending' %}
+                            <form action="{{ url_for('cancel_request') }}" method="POST"
+                                data-confirm="Are you sure you want to cancel this request?">
+                                <input type="hidden" name="request_id" value="{{ r.id }}">
+                                <button type="submit" class="btn-mini btn-red">Cancel</button>
+                            </form>
+                            {% else %}
+                            <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <p>You haven't made any blood requests yet.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
