@@ -55,19 +55,6 @@ A modern, aesthetic, and fully functional Blood Donation Management System built
    python app.py
    ```
    The app will be available at `http://127.0.0.1:5000`.
-
----
-
-## 🧪 Demo Credentials
-
-You can use the following accounts to test the system:
-
-| Role | Email | Password |
-| :--- | :--- | :--- |
-| **Donor** | `donor@test.com` | `123456` |
-| **Hospital** | `hospital@test.com` | `123456` |
-| **Recipient** | `recipient@test.com` | `123456` |
-
 ---
 
 ## 📦 Project Structure
